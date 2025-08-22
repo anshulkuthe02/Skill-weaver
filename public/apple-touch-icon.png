@@ -1,0 +1,33 @@
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skillweave-gradient-large" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background with rounded corners for iOS -->
+  <rect x="0" y="0" width="180" height="180" rx="32" fill="url(#skillweave-gradient-large)"/>
+  
+  <!-- Portfolio/Document icon -->
+  <rect x="45" y="35" width="90" height="120" rx="12" fill="#ffffff" opacity="0.95"/>
+  
+  <!-- Content lines -->
+  <rect x="60" y="55" width="60" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="60" y="75" width="45" height="6" rx="3" fill="#8b5cf6"/>
+  <rect x="60" y="90" width="60" height="6" rx="3" fill="#06b6d4"/>
+  <rect x="60" y="105" width="50" height="6" rx="3" fill="#3b82f6"/>
+  
+  <!-- Weave pattern -->
+  <circle cx="75" cy="125" r="12" fill="#3b82f6" opacity="0.8"/>
+  <circle cx="105" cy="135" r="12" fill="#8b5cf6" opacity="0.8"/>
+  <circle cx="75" cy="145" r="12" fill="#06b6d4" opacity="0.8"/>
+  
+  <!-- Connection lines -->
+  <path d="M75 137 Q90 133 105 135" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.9"/>
+  <path d="M75 133 Q90 140 75 145" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.9"/>
+  
+  <!-- Brand mark -->
+  <text x="90" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">SW</text>
+</svg>
