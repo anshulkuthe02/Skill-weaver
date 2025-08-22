@@ -1,4 +1,4 @@
-import { Code2, Palette, Eye, Settings, User, FileText, Home, LogOut } from "lucide-react";
+import { Code2, Palette, Eye, Settings, User, FileText, Home, LogOut, House } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const items = [
+  { title: "Home", url: "/home", icon: House },
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Builder", url: "/builder", icon: Code2 },
   { title: "Templates", url: "/templates", icon: Palette },

@@ -15,6 +15,32 @@ export interface Contact {
   website: string;
 }
 
+export interface Document {
+  id: string;
+  name: string;
+  type: 'cv' | 'resume' | 'certificate' | 'transcript' | 'portfolio' | 'other';
+  filename: string;
+  fileSize: number;
+  mimeType: string;
+  content: string; // Base64 encoded content
+  uploadDate: Date;
+  description?: string;
+  isPublic: boolean;
+}
+
+export interface MediaFile {
+  id: string;
+  name: string;
+  type: 'image' | 'video' | 'audio' | 'document';
+  filename: string;
+  fileSize: number;
+  mimeType: string;
+  content: string; // Base64 encoded content
+  uploadDate: Date;
+  description?: string;
+  tags: string[];
+}
+
 export interface PortfolioData {
   name: string;
   title: string;
@@ -22,6 +48,9 @@ export interface PortfolioData {
   skills: string[];
   projects: Project[];
   contact: Contact;
+  documents: Document[];
+  media: MediaFile[];
+  resumeId?: string; // Primary resume/CV reference
 }
 
 export interface Template {

@@ -43,31 +43,50 @@ class AuthService {
   // Sign up with email and password
   async signUp(userData: SignUpData): Promise<{ user: AuthUser; session: Session }> {
     try {
-      const { data, error } = await auth.signUp(
-        userData.email,
-        userData.password,
-        {
-          first_name: userData.firstName,
-          last_name: userData.lastName,
-          username: userData.username
+      console.log('🔐 Attempting signup with:', userData.email);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email.trim().toLowerCase(),
+        password: userData.password,
+        options: {
+          data: {
+            first_name: userData.firstName,
+            last_name: userData.lastName,
+            username: userData.username
+          }
         }
-      );
+      });
+
+      console.log('📊 Signup response:', { data, error });
 
       if (error) {
-        throw new ApiError(error.message, 400, 'SIGNUP_ERROR');
+        console.error('❌ Signup error:', error);
+        throw new ApiError(`Signup failed: ${error.message}`, 400, 'SIGNUP_ERROR');
       }
 
-      if (!data.user || !data.session) {
-        throw new ApiError('Sign up failed', 400, 'SIGNUP_FAILED');
+      if (!data.user) {
+        throw new ApiError('Signup successful but no user returned. Check your email for verification.', 200, 'EMAIL_VERIFICATION_SENT');
       }
 
-      // Update user profile data in the users table
-      if (data.user) {
+      // For email confirmation flow, data.session might be null
+      if (!data.session) {
+        console.log('📧 Email confirmation required');
+        return {
+          user: this.formatUser(data.user),
+          session: {} as Session // Temporary session object
+        };
+      }
+
+      // Create profile record after successful signup
+      try {
         await this.updateUserProfile(data.user.id, {
           first_name: userData.firstName,
           last_name: userData.lastName,
-          username: userData.username
+          username: userData.username,
+          email: userData.email
         });
+      } catch (profileError) {
+        console.warn('⚠️ Profile creation failed, but user was created:', profileError);
       }
 
       return {
@@ -75,6 +94,7 @@ class AuthService {
         session: data.session
       };
     } catch (error) {
+      console.error('❌ Signup process failed:', error);
       if (error instanceof ApiError) {
         throw error;
       }
@@ -85,7 +105,10 @@ class AuthService {
   // Sign in with email and password
   async signIn(credentials: SignInData): Promise<{ user: AuthUser; session: Session }> {
     try {
-      const { data, error } = await auth.signIn(credentials.email, credentials.password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      });
 
       if (error) {
         throw new ApiError(error.message, 401, 'SIGNIN_ERROR');
@@ -110,7 +133,7 @@ class AuthService {
   // Sign out
   async signOut(): Promise<void> {
     try {
-      const { error } = await auth.signOut();
+      const { error } = await supabase.auth.signOut();
       
       if (error) {
         throw new ApiError(error.message, 500, 'SIGNOUT_ERROR');
@@ -126,7 +149,7 @@ class AuthService {
   // Get current user
   async getCurrentUser(): Promise<AuthUser | null> {
     try {
-      const { user, error } = await auth.getUser();
+      const { data: { user }, error } = await supabase.auth.getUser();
 
       if (error) {
         throw new ApiError(error.message, 401, 'GET_USER_ERROR');
@@ -159,7 +182,7 @@ class AuthService {
   // Get current session
   async getCurrentSession(): Promise<Session | null> {
     try {
-      const { session, error } = await auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
 
       if (error) {
         throw new ApiError(error.message, 401, 'GET_SESSION_ERROR');

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { testBackendConnection, templateService } from '@/services';
+import { testBackendConnection } from '@/services';
 import { AlertCircle, CheckCircle, Loader2, Server } from 'lucide-react';
 
 const BackendConnectionTest: React.FC = () => {
@@ -12,13 +12,6 @@ const BackendConnectionTest: React.FC = () => {
     error?: string;
     loading: boolean;
   }>({ isConnected: false, loading: false });
-
-  const [templatesTest, setTemplatesTest] = useState<{
-    success: boolean;
-    count?: number;
-    error?: string;
-    loading: boolean;
-  }>({ success: false, loading: false });
 
   const testConnection = async () => {
     setConnectionStatus({ isConnected: false, loading: true });
@@ -35,32 +28,6 @@ const BackendConnectionTest: React.FC = () => {
         error: error instanceof Error ? error.message : 'Unknown error',
         loading: false,
       });
-    }
-  };
-
-  const testTemplateService = async () => {
-    setTemplatesTest({ success: false, loading: true });
-    
-    try {
-      const result = await templateService.getTemplates({ limit: 5 });
-      setTemplatesTest({
-        success: true,
-        count: result.data?.templates?.length || 0,
-        loading: false,
-      });
-    } catch (error) {
-      setTemplatesTest({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch templates',
-        loading: false,
-      });
-    }
-  };
-
-  const runAllTests = async () => {
-    await testConnection();
-    if (connectionStatus.isConnected) {
-      await testTemplateService();
     }
   };
 
@@ -114,36 +81,6 @@ const BackendConnectionTest: React.FC = () => {
           </div>
         )}
 
-        {/* Template Service Test */}
-        {connectionStatus.isConnected && (
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="flex items-center gap-2">
-              {templatesTest.loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : templatesTest.success ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              ) : (
-                <AlertCircle className="h-4 w-4 text-orange-500" />
-              )}
-              <span className="font-medium">Template Service</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge 
-                variant={templatesTest.success ? "default" : "secondary"}
-              >
-                {templatesTest.loading ? 'Testing...' : 
-                 templatesTest.success ? `${templatesTest.count} templates` : 'Not tested'}
-              </Badge>
-            </div>
-          </div>
-        )}
-
-        {templatesTest.error && (
-          <div className="text-sm text-orange-600 bg-orange-50 p-3 rounded-lg">
-            Template Service Error: {templatesTest.error}
-          </div>
-        )}
-
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button 
@@ -155,26 +92,6 @@ const BackendConnectionTest: React.FC = () => {
             {connectionStatus.loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Test Connection
           </Button>
-          
-          {connectionStatus.isConnected && (
-            <Button 
-              onClick={testTemplateService}
-              disabled={templatesTest.loading}
-              variant="outline"
-              size="sm"
-            >
-              {templatesTest.loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Test Templates
-            </Button>
-          )}
-          
-          <Button 
-            onClick={runAllTests}
-            disabled={connectionStatus.loading || templatesTest.loading}
-            size="sm"
-          >
-            Run All Tests
-          </Button>
         </div>
 
         {/* API Endpoints */}
@@ -184,7 +101,6 @@ const BackendConnectionTest: React.FC = () => {
             <div>• Backend API: http://localhost:3001/api</div>
             <div>• Health Check: http://localhost:3001/api/health</div>
             <div>• Documentation: http://localhost:3001/api/docs/interactive</div>
-            <div>• Templates: http://localhost:3001/api/templates</div>
           </div>
         </div>
       </CardContent>

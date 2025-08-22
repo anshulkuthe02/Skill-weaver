@@ -1,13 +1,11 @@
 // Export all services
 export { default as apiService } from './apiService';
-export { default as templateService } from './templateService';
 export { default as aiService } from './aiService';
 
 // Export types
 export * from './types';
 
 // Export specific service types
-export type { TemplateFilters } from './templateService';
 export type { 
   UserData, 
   AIUsageStats, 
@@ -17,12 +15,10 @@ export type {
 
 // Service instances for convenience
 import apiService from './apiService';
-import templateService from './templateService';
 import aiService from './aiService';
 
 export const services = {
   api: apiService,
-  templates: templateService,
   ai: aiService,
 };
 

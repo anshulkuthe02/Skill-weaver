@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface Element {
   id: string;
-  type: 'text' | 'shape' | 'image' | 'button' | 'divider' | 'icon' | 'video' | 'audio' | 'document';
+  type: 'text' | 'shape' | 'image' | 'button' | 'divider' | 'icon' | 'video';
   content: string;
   x: number;
   y: number;
@@ -33,9 +33,6 @@ interface Element {
   shadowY?: number;
   shadowBlur?: number;
   shadowColor?: string;
-  fileType?: string;
-  fileName?: string;
-  fileSize?: number;
 }
 
 interface ManualDesignPageProps {
@@ -59,115 +56,6 @@ interface ManualDesignPageProps {
 
 const themes = ["Light", "Dark", "Minimal", "Creative"];
 
-// Utility functions
-const getMediaType = (file: File): 'image' | 'video' | 'audio' | 'document' => {
-  const type = file.type.toLowerCase();
-  if (type.startsWith('image/')) return 'image';
-  if (type.startsWith('video/')) return 'video';
-  if (type.startsWith('audio/')) return 'audio';
-  return 'document';
-};
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-// Data Storage Interfaces
-interface CanvasPreset {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  data: {
-    elements: Element[];
-    theme: string;
-    color: string;
-    gradient: string;
-    footer: string;
-    siteLength: number;
-    customCSS: string;
-  };
-  thumbnail?: string; // Base64 encoded preview image
-}
-
-interface StorageData {
-  presets: CanvasPreset[];
-  currentProject: CanvasPreset | null;
-  autoSave: boolean;
-  lastSaved: Date | null;
-}
-
-// Storage utility functions
-const STORAGE_KEY = 'skillweave-canvas-data';
-
-const saveToStorage = (data: StorageData): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data, (key, value) => {
-      if (key === 'createdAt' || key === 'updatedAt' || key === 'lastSaved') {
-        return value instanceof Date ? value.toISOString() : value;
-      }
-      return value;
-    }));
-  } catch (error) {
-    console.error('Failed to save to localStorage:', error);
-  }
-};
-
-const loadFromStorage = (): StorageData => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored, (key, value) => {
-        if (key === 'createdAt' || key === 'updatedAt' || key === 'lastSaved') {
-          return value ? new Date(value) : null;
-        }
-        return value;
-      });
-      return parsed;
-    }
-  } catch (error) {
-    console.error('Failed to load from localStorage:', error);
-  }
-  
-  return {
-    presets: [],
-    currentProject: null,
-    autoSave: true,
-    lastSaved: null
-  };
-};
-
-const generateThumbnail = (canvasRef: React.RefObject<HTMLDivElement>): string | undefined => {
-  if (!canvasRef.current) return undefined;
-  
-  try {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return undefined;
-    
-    canvas.width = 200;
-    canvas.height = 150;
-    
-    // Create a simple preview representation
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '12px Arial';
-    ctx.fillText('Canvas Preview', 10, 20);
-    
-    return canvas.toDataURL('image/png');
-  } catch (error) {
-    console.error('Failed to generate thumbnail:', error);
-    return undefined;
-  }
-};
-
 const ManualDesignPage = ({
   customCSS, onChange, theme, setTheme, color, setColor, gradient, setGradient, footer, setFooter, siteLength, setSiteLength, elements, setElements, selectedElement, setSelectedElement
 }: ManualDesignPageProps) => {
@@ -178,209 +66,7 @@ const ManualDesignPage = ({
   const [editingElement, setEditingElement] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Storage state
-  const [storageData, setStorageData] = useState<StorageData>(loadFromStorage);
-  const [showPresetDialog, setShowPresetDialog] = useState<boolean>(false);
-  const [presetName, setPresetName] = useState<string>('');
-  const [presetDescription, setPresetDescription] = useState<string>('');
-  const [showLoadDialog, setShowLoadDialog] = useState<boolean>(false);
-
-  // Storage functions
-  const restoreProject = useCallback((project: CanvasPreset) => {
-    setElements(project.data.elements);
-    setTheme(project.data.theme);
-    setColor(project.data.color);
-    setGradient(project.data.gradient);
-    setFooter(project.data.footer);
-    setSiteLength(project.data.siteLength);
-    onChange(project.data.customCSS);
-  }, [setElements, setTheme, setColor, setGradient, setFooter, setSiteLength, onChange]);
-
-  const saveCurrentProject = useCallback(() => {
-    const currentData: CanvasPreset = {
-      id: storageData.currentProject?.id || `project-${Date.now()}`,
-      name: storageData.currentProject?.name || 'Untitled Project',
-      description: storageData.currentProject?.description,
-      createdAt: storageData.currentProject?.createdAt || new Date(),
-      updatedAt: new Date(),
-      data: {
-        elements,
-        theme,
-        color,
-        gradient,
-        footer,
-        siteLength,
-        customCSS
-      },
-      thumbnail: generateThumbnail(canvasRef)
-    };
-
-    const updatedStorageData: StorageData = {
-      ...storageData,
-      currentProject: currentData,
-      lastSaved: new Date()
-    };
-
-    setStorageData(updatedStorageData);
-    saveToStorage(updatedStorageData);
-  }, [storageData, elements, theme, color, gradient, footer, siteLength, customCSS]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!storageData.autoSave) return;
-    
-    const autoSaveInterval = setInterval(() => {
-      saveCurrentProject();
-    }, 30000); // Auto-save every 30 seconds
-    
-    return () => clearInterval(autoSaveInterval);
-  }, [storageData.autoSave, saveCurrentProject]);
-
-  // Load storage data on mount
-  useEffect(() => {
-    const loadedData = loadFromStorage();
-    setStorageData(loadedData);
-    
-    // If there's a current project, restore it
-    if (loadedData.currentProject) {
-      restoreProject(loadedData.currentProject);
-    }
-  }, [restoreProject]);
-
-  const loadPreset = useCallback((preset: CanvasPreset) => {
-    restoreProject(preset);
-    setShowLoadDialog(false);
-  }, [restoreProject]);
-
-  const saveAsPreset = useCallback((name: string, description?: string) => {
-    const newPreset: CanvasPreset = {
-      id: `preset-${Date.now()}`,
-      name,
-      description,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      data: {
-        elements,
-        theme,
-        color,
-        gradient,
-        footer,
-        siteLength,
-        customCSS
-      },
-      thumbnail: generateThumbnail(canvasRef)
-    };
-
-    const updatedStorageData: StorageData = {
-      ...storageData,
-      presets: [...storageData.presets, newPreset]
-    };
-
-    setStorageData(updatedStorageData);
-    saveToStorage(updatedStorageData);
-    setShowPresetDialog(false);
-    setPresetName('');
-    setPresetDescription('');
-  }, [storageData, elements, theme, color, gradient, footer, siteLength, customCSS]);
-
-  const deletePreset = useCallback((presetId: string) => {
-    const updatedStorageData: StorageData = {
-      ...storageData,
-      presets: storageData.presets.filter(p => p.id !== presetId)
-    };
-
-    setStorageData(updatedStorageData);
-    saveToStorage(updatedStorageData);
-  }, [storageData]);
-
-  const createNewProject = useCallback(() => {
-    setElements([]);
-    setTheme('Dark');
-    setColor('#3b82f6');
-    setGradient('linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
-    setFooter('© 2024 SkillWeave');
-    setSiteLength(800);
-    onChange('');
-    setSelectedElement(null);
-
-    const updatedStorageData: StorageData = {
-      ...storageData,
-      currentProject: null
-    };
-
-    setStorageData(updatedStorageData);
-    saveToStorage(updatedStorageData);
-  }, [setElements, setTheme, setColor, setGradient, setFooter, setSiteLength, onChange, setSelectedElement, storageData]);
-
-  // Handle media file upload
-  const handleMediaUpload = (file: File) => {
-    const mediaType = getMediaType(file);
-    const reader = new FileReader();
-    
-    reader.onload = (event) => {
-      const fileUrl = event.target?.result as string;
-      let elementConfig: Partial<Element> = {
-        content: fileUrl,
-        fileType: file.type,
-        fileName: file.name,
-        fileSize: file.size
-      };
-
-      // Set default dimensions based on media type
-      switch (mediaType) {
-        case 'image':
-          elementConfig = { ...elementConfig, width: 200, height: 150 };
-          break;
-        case 'video':
-          elementConfig = { ...elementConfig, width: 320, height: 240 };
-          break;
-        case 'audio':
-          elementConfig = { ...elementConfig, width: 300, height: 60 };
-          break;
-        case 'document':
-          elementConfig = { ...elementConfig, width: 200, height: 100 };
-          break;
-      }
-
-      const newElement: Element = {
-        id: `element-${Date.now()}`,
-        type: mediaType,
-        content: fileUrl,
-        x: 100,
-        y: 100,
-        width: elementConfig.width || 200,
-        height: elementConfig.height || 150,
-        fontSize: 16,
-        fontFamily: 'Arial',
-        fontWeight: 'normal',
-        fontStyle: 'normal',
-        textDecoration: 'none',
-        color: '#000000',
-        backgroundColor: 'transparent',
-        borderColor: '#000000',
-        borderWidth: 0,
-        borderRadius: 0,
-        lineHeight: 1.5,
-        letterSpacing: 0,
-        opacity: 1,
-        rotation: 0,
-        shadowX: 0,
-        shadowY: 0,
-        shadowBlur: 0,
-        shadowColor: '#000000',
-        fileType: file.type,
-        fileName: file.name,
-        fileSize: file.size
-      };
-      
-      setElements([...elements, newElement]);
-      setSelectedElement(newElement.id);
-    };
-    
-    reader.readAsDataURL(file);
-  };
-
-  const addElement = (type: 'text' | 'shape' | 'image' | 'button' | 'divider' | 'icon' | 'video' | 'audio' | 'document') => {
+  const addElement = (type: 'text' | 'shape' | 'image' | 'button' | 'divider' | 'icon' | 'video') => {
     const baseElement = {
       id: `element-${Date.now()}`,
       type,
@@ -465,20 +151,6 @@ const ManualDesignPage = ({
           content: '',
           width: 300,
           height: 200
-        };
-        break;
-      case 'audio':
-        elementConfig = {
-          content: '',
-          width: 300,
-          height: 60
-        };
-        break;
-      case 'document':
-        elementConfig = {
-          content: '',
-          width: 200,
-          height: 100
         };
         break;
     }
@@ -677,151 +349,54 @@ const ManualDesignPage = ({
               </svg>
             </Button>
             
-            {/* Media Upload Buttons */}
-            <label className="cursor-pointer" title="Upload Images">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-cyan-600/30 border border-[#444] bg-[#2a2a2a] w-full">
+            <label className="cursor-pointer">
+              <Button variant="ghost" size="sm" title="Upload Image" className="text-white hover:bg-cyan-600/30 border border-[#444] bg-[#2a2a2a] w-full">
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                   <circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21,15 16,10 5,21"/>
                 </svg>
               </Button>
-              <input 
-                type="file" 
-                accept="image/*" 
-                multiple
-                className="hidden" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  files.forEach(file => handleMediaUpload(file));
-                  e.target.value = ''; // Reset input
-                }} 
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const imageUrl = event.target?.result as string;
+                    const newElement: Element = {
+                      id: `element-${Date.now()}`,
+                      type: 'image',
+                      content: imageUrl,
+                      x: 100,
+                      y: 100,
+                      width: 200,
+                      height: 150,
+                      fontSize: 16,
+                      fontFamily: 'Arial',
+                      fontWeight: 'normal',
+                      fontStyle: 'normal',
+                      textDecoration: 'none',
+                      color: '#000000',
+                      backgroundColor: 'transparent',
+                      borderColor: '#000000',
+                      borderWidth: 0,
+                      borderRadius: 0,
+                      lineHeight: 1.5,
+                      letterSpacing: 0,
+                      opacity: 1,
+                      rotation: 0,
+                      shadowX: 0,
+                      shadowY: 0,
+                      shadowBlur: 0,
+                      shadowColor: '#000000'
+                    };
+                    setElements([...elements, newElement]);
+                    setSelectedElement(newElement.id);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }} />
             </label>
-            
-            <label className="cursor-pointer" title="Upload Videos">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-red-600/30 border border-[#444] bg-[#2a2a2a] w-full">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                  <polygon points="10,8.5 16,12 10,15.5"/>
-                </svg>
-              </Button>
-              <input 
-                type="file" 
-                accept="video/*" 
-                multiple
-                className="hidden" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  files.forEach(file => handleMediaUpload(file));
-                  e.target.value = ''; // Reset input
-                }} 
-              />
-            </label>
-            
-            <label className="cursor-pointer" title="Upload Audio">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-purple-600/30 border border-[#444] bg-[#2a2a2a] w-full">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 18V5l12-2v13"/>
-                  <circle cx="6" cy="18" r="3"/>
-                  <circle cx="18" cy="16" r="3"/>
-                </svg>
-              </Button>
-              <input 
-                type="file" 
-                accept="audio/*" 
-                multiple
-                className="hidden" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  files.forEach(file => handleMediaUpload(file));
-                  e.target.value = ''; // Reset input
-                }} 
-              />
-            </label>
-            
-            <label className="cursor-pointer" title="Upload Documents">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-green-600/30 border border-[#444] bg-[#2a2a2a] w-full">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14,2H6a2,2 0 0,0-2,2V20a2,2 0 0,0,2,2H18a2,2 0 0,0,2-2V6Z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10,9 9,9 8,9"/>
-                </svg>
-              </Button>
-              <input 
-                type="file" 
-                accept=".pdf,.doc,.docx,.txt,.rtf,.xls,.xlsx,.ppt,.pptx" 
-                multiple
-                className="hidden" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  files.forEach(file => handleMediaUpload(file));
-                  e.target.value = ''; // Reset input
-                }} 
-              />
-            </label>
-            
-            <label className="cursor-pointer" title="Upload Any Media">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-indigo-600/30 border border-[#444] bg-[#2a2a2a] w-full">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7,10 12,15 17,10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-              </Button>
-              <input 
-                type="file" 
-                accept="*/*" 
-                multiple
-                className="hidden" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  files.forEach(file => handleMediaUpload(file));
-                  e.target.value = ''; // Reset input
-                }} 
-              />
-            </label>
-            
-            {/* Project Controls */}
-            <div className="border-l border-[#444] pl-2 ml-2">
-              <Button variant="ghost" size="sm" title="New Project" className="text-white hover:bg-blue-600/30 border border-[#444] bg-[#2a2a2a] mb-1" onClick={createNewProject}>
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10,9 9,9 8,9"/>
-                </svg>
-              </Button>
-              
-              <Button variant="ghost" size="sm" title="Save Current Project" className="text-white hover:bg-green-600/30 border border-[#444] bg-[#2a2a2a] mb-1" onClick={saveCurrentProject}>
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                  <polyline points="17,21 17,13 7,13 7,21"/>
-                  <polyline points="7,3 7,8 15,8"/>
-                </svg>
-              </Button>
-              
-              <Button variant="ghost" size="sm" title="Save as Preset" className="text-white hover:bg-yellow-600/30 border border-[#444] bg-[#2a2a2a] mb-1" onClick={() => setShowPresetDialog(true)}>
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                  <path d="m9 14 2 2 4-4"/>
-                </svg>
-              </Button>
-              
-              <Button variant="ghost" size="sm" title="Load Preset" className="text-white hover:bg-purple-600/30 border border-[#444] bg-[#2a2a2a] mb-1" onClick={() => setShowLoadDialog(true)}>
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10,9 9,9 8,9"/>
-                </svg>
-              </Button>
-            </div>
             
             <Button variant="ghost" size="sm" title="Clear All" className="text-white hover:bg-red-600/30 border border-[#444] bg-[#2a2a2a]" onClick={() => {
               setElements([]);
@@ -967,141 +542,6 @@ const ManualDesignPage = ({
             </Card>
           )}
 
-          {/* Image Properties */}
-          {selectedEl && selectedEl.type === 'image' && (
-            <Card className="bg-[#2a2a2a] border-[#444] text-white">
-              <CardHeader>
-                <CardTitle className="text-cyan-400">Image Properties</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedEl.fileName && (
-                  <div>
-                    <Label className="text-cyan-300">File Name</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileName}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileSize && (
-                  <div>
-                    <Label className="text-cyan-300">File Size</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {formatFileSize(selectedEl.fileSize)}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Video Properties */}
-          {selectedEl && selectedEl.type === 'video' && (
-            <Card className="bg-[#2a2a2a] border-[#444] text-white">
-              <CardHeader>
-                <CardTitle className="text-red-400">Video Properties</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedEl.fileName && (
-                  <div>
-                    <Label className="text-red-300">File Name</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileName}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileSize && (
-                  <div>
-                    <Label className="text-red-300">File Size</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {formatFileSize(selectedEl.fileSize)}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileType && (
-                  <div>
-                    <Label className="text-red-300">Format</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileType}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Audio Properties */}
-          {selectedEl && selectedEl.type === 'audio' && (
-            <Card className="bg-[#2a2a2a] border-[#444] text-white">
-              <CardHeader>
-                <CardTitle className="text-purple-400">Audio Properties</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedEl.fileName && (
-                  <div>
-                    <Label className="text-purple-300">File Name</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileName}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileSize && (
-                  <div>
-                    <Label className="text-purple-300">File Size</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {formatFileSize(selectedEl.fileSize)}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileType && (
-                  <div>
-                    <Label className="text-purple-300">Format</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileType}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Document Properties */}
-          {selectedEl && selectedEl.type === 'document' && (
-            <Card className="bg-[#2a2a2a] border-[#444] text-white">
-              <CardHeader>
-                <CardTitle className="text-green-400">Document Properties</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedEl.fileName && (
-                  <div>
-                    <Label className="text-green-300">File Name</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileName}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileSize && (
-                  <div>
-                    <Label className="text-green-300">File Size</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {formatFileSize(selectedEl.fileSize)}
-                    </div>
-                  </div>
-                )}
-                {selectedEl.fileType && (
-                  <div>
-                    <Label className="text-green-300">Format</Label>
-                    <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-300">
-                      {selectedEl.fileType}
-                    </div>
-                  </div>
-                )}
-                <div className="bg-[#1a1a1a] border border-[#555] rounded px-3 py-2 text-sm text-gray-400">
-                  <p>Click on the document to preview or download the file</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Theme Section */}
           <Card className="bg-[#2a2a2a] border-[#444] text-white">
             <CardHeader>
@@ -1114,48 +554,6 @@ const ManualDesignPage = ({
                     className={theme === t ? "bg-purple-600 text-white" : "border-[#555] text-gray-300 hover:bg-purple-600/20"} 
                     onClick={() => setTheme(t)}>{t}</Button>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Project Status */}
-          <Card className="bg-[#2a2a2a] border-[#444] text-white">
-            <CardHeader>
-              <CardTitle className="text-blue-400">Project Status</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Current Project:</span>
-                <span className="text-white">{storageData.currentProject?.name || 'Untitled'}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Elements:</span>
-                <span className="text-white">{elements.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Saved Presets:</span>
-                <span className="text-white">{storageData.presets.length}</span>
-              </div>
-              {storageData.lastSaved && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Last Saved:</span>
-                  <span className="text-white text-xs">{storageData.lastSaved.toLocaleTimeString()}</span>
-                </div>
-              )}
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Auto-save:</span>
-                <Button 
-                  size="sm" 
-                  variant={storageData.autoSave ? "default" : "outline"}
-                  onClick={() => {
-                    const updated = { ...storageData, autoSave: !storageData.autoSave };
-                    setStorageData(updated);
-                    saveToStorage(updated);
-                  }}
-                  className={storageData.autoSave ? "bg-green-600 text-white h-6" : "border-[#555] text-gray-300 h-6"}
-                >
-                  {storageData.autoSave ? 'ON' : 'OFF'}
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -1332,7 +730,6 @@ const ManualDesignPage = ({
                   isSelected={selectedElement === element.id}
                   isEditing={editingElement === element.id}
                   onSelect={() => {
-                    console.log('Element selected:', element.id, element.type);
                     setSelectedElement(element.id);
                     setContextMenu(null);
                   }}
@@ -1431,131 +828,6 @@ const ManualDesignPage = ({
           </div>
         </div>
       )}
-
-      {/* Save Preset Dialog */}
-      {showPresetDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="bg-[#2a2a2a] border-[#444] text-white w-96">
-            <CardHeader>
-              <CardTitle className="text-yellow-400">Save as Preset</CardTitle>
-              <CardDescription className="text-gray-300">
-                Save your current canvas design as a reusable preset
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-yellow-300">Preset Name</Label>
-                <Input 
-                  value={presetName} 
-                  onChange={(e) => setPresetName(e.target.value)}
-                  placeholder="Enter preset name..."
-                  className="bg-[#1a1a1a] border-[#555] text-white"
-                />
-              </div>
-              <div>
-                <Label className="text-yellow-300">Description (Optional)</Label>
-                <Textarea 
-                  value={presetDescription} 
-                  onChange={(e) => setPresetDescription(e.target.value)}
-                  placeholder="Enter preset description..."
-                  className="bg-[#1a1a1a] border-[#555] text-white"
-                  rows={3}
-                />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => {
-                  setShowPresetDialog(false);
-                  setPresetName('');
-                  setPresetDescription('');
-                }} className="border-[#555] text-gray-300">
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => saveAsPreset(presetName, presetDescription)}
-                  disabled={!presetName.trim()}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                >
-                  Save Preset
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Load Preset Dialog */}
-      {showLoadDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="bg-[#2a2a2a] border-[#444] text-white w-[600px] max-h-[80vh] overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-purple-400">Load Preset</CardTitle>
-              <CardDescription className="text-gray-300">
-                Choose a preset to load into your canvas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                {storageData.presets.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    No presets saved yet. Create your first preset!
-                  </div>
-                ) : (
-                  storageData.presets.map((preset) => (
-                    <div key={preset.id} className="bg-[#1a1a1a] border border-[#444] rounded p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-white font-medium">{preset.name}</h3>
-                          {preset.description && (
-                            <p className="text-gray-400 text-sm mt-1">{preset.description}</p>
-                          )}
-                          <div className="text-xs text-gray-500 mt-2">
-                            Created: {preset.createdAt.toLocaleDateString()}
-                            {preset.updatedAt.getTime() !== preset.createdAt.getTime() && (
-                              <span> • Updated: {preset.updatedAt.toLocaleDateString()}</span>
-                            )}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            Elements: {preset.data.elements.length} • Theme: {preset.data.theme}
-                          </div>
-                        </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button 
-                            size="sm"
-                            onClick={() => loadPreset(preset)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                          >
-                            Load
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => deletePreset(preset.id)}
-                            className="border-red-500 text-red-400 hover:bg-red-600/20"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="flex justify-end mt-4 pt-4 border-t border-[#444]">
-                <Button variant="outline" onClick={() => setShowLoadDialog(false)} className="border-[#555] text-gray-300">
-                  Close
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Auto-save Indicator */}
-      {storageData.lastSaved && (
-        <div className="fixed bottom-4 right-4 bg-[#2a2a2a] border border-[#444] rounded px-3 py-2 text-xs text-gray-300">
-          Last saved: {storageData.lastSaved.toLocaleTimeString()}
-        </div>
-      )}
     </div>
   );
 };
@@ -1599,27 +871,17 @@ const ElementRenderer = ({
     const startY = e.clientY;
     const startElementX = element.x;
     const startElementY = element.y;
-    let hasMoved = false;
+
+    setIsDragging(true);
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = Math.abs(e.clientX - startX);
-      const deltaY = Math.abs(e.clientY - startY);
+      const deltaX = (e.clientX - startX) / canvasZoom;
+      const deltaY = (e.clientY - startY) / canvasZoom;
       
-      // Only start dragging if mouse moved more than 5 pixels
-      if (deltaX > 5 || deltaY > 5) {
-        if (!hasMoved) {
-          hasMoved = true;
-          setIsDragging(true);
-        }
-        
-        const newDeltaX = (e.clientX - startX) / canvasZoom;
-        const newDeltaY = (e.clientY - startY) / canvasZoom;
-        
-        const newX = Math.max(0, startElementX + newDeltaX);
-        const newY = Math.max(0, startElementY + newDeltaY);
-        
-        onUpdate({ x: newX, y: newY });
-      }
+      const newX = Math.max(0, startElementX + deltaX);
+      const newY = Math.max(0, startElementY + deltaY);
+      
+      onUpdate({ x: newX, y: newY });
     };
 
     const handleMouseUp = () => {
@@ -1665,7 +927,7 @@ const ElementRenderer = ({
     transform: `rotate(${element.rotation || 0}deg)`,
     boxShadow: element.shadowBlur ? 
       `${element.shadowX || 0}px ${element.shadowY || 0}px ${element.shadowBlur}px ${element.shadowColor || '#000'}` : 
-      isSelected ? '0 0 0 2px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'none',
+      isSelected ? '0 0 0 2px rgba(59, 130, 246, 0.3)' : 'none',
     zIndex: isSelected ? 100 : 1,
     transition: isDragging ? 'none' : 'box-shadow 0.2s ease',
     display: 'flex',
@@ -1678,10 +940,7 @@ const ElementRenderer = ({
   return (
     <div
       style={elementStyle}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect();
-      }}
+      onClick={onSelect}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
       onContextMenu={onContextMenu}
@@ -1701,27 +960,11 @@ const ElementRenderer = ({
             padding: '8px',
             wordBreak: 'break-word',
             whiteSpace: 'pre-wrap',
-            cursor: isEditing ? 'text' : 'inherit',
-            minHeight: '20px'
+            cursor: isEditing ? 'text' : 'inherit'
           }}
-          onBlur={(e) => {
-            const newContent = (e.target as HTMLElement).textContent || element.content || 'Text';
-            if (newContent !== element.content) {
-              handleContentChange(newContent);
-            }
+          onBlur={() => {
+            handleContentChange((document.activeElement as HTMLElement)?.textContent || '');
             onStopEdit();
-          }}
-          onFocus={(e) => {
-            if (isEditing) {
-              // Select all text for easier editing
-              setTimeout(() => {
-                const selection = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(e.target);
-                selection?.removeAllRanges();
-                selection?.addRange(range);
-              }, 10);
-            }
           }}
           onKeyDown={(e) => {
             e.stopPropagation();
@@ -1730,14 +973,11 @@ const ElementRenderer = ({
               (e.target as HTMLElement).blur();
             }
             if (e.key === 'Escape') {
-              // Restore original content on escape
-              (e.target as HTMLElement).textContent = element.content || 'Text';
               (e.target as HTMLElement).blur();
             }
           }}
-          dangerouslySetInnerHTML={isEditing ? undefined : { __html: element.content || 'Text' }}
         >
-          {isEditing ? (element.content || 'Text') : undefined}
+          {element.content || 'Text'}
         </div>
       )}
       
@@ -1752,27 +992,11 @@ const ElementRenderer = ({
             alignItems: 'center',
             justifyContent: 'center',
             outline: 'none',
-            cursor: isEditing ? 'text' : 'inherit',
-            minHeight: '20px'
+            cursor: isEditing ? 'text' : 'inherit'
           }}
-          onBlur={(e) => {
-            const newContent = (e.target as HTMLElement).textContent || element.content || 'Button';
-            if (newContent !== element.content) {
-              handleContentChange(newContent);
-            }
+          onBlur={() => {
+            handleContentChange((document.activeElement as HTMLElement)?.textContent || '');
             onStopEdit();
-          }}
-          onFocus={(e) => {
-            if (isEditing) {
-              // Select all text for easier editing
-              setTimeout(() => {
-                const selection = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(e.target);
-                selection?.removeAllRanges();
-                selection?.addRange(range);
-              }, 10);
-            }
           }}
           onKeyDown={(e) => {
             e.stopPropagation();
@@ -1781,91 +1005,26 @@ const ElementRenderer = ({
               (e.target as HTMLElement).blur();
             }
             if (e.key === 'Escape') {
-              // Restore original content on escape
-              (e.target as HTMLElement).textContent = element.content || 'Button';
               (e.target as HTMLElement).blur();
             }
           }}
-          dangerouslySetInnerHTML={isEditing ? undefined : { __html: element.content || 'Button' }}
         >
-          {isEditing ? (element.content || 'Button') : undefined}
+          {element.content || 'Button'}
         </div>
       )}
       
       {element.type === 'image' && element.content && (
         <img 
           src={element.content} 
-          alt={element.fileName || "Image"} 
+          alt="Element" 
           style={{ 
             width: '100%', 
             height: '100%', 
-            objectFit: 'contain',
-            objectPosition: 'center',
+            objectFit: 'cover',
             borderRadius: 'inherit'
           }}
           draggable={false}
         />
-      )}
-      
-      {element.type === 'video' && element.content && (
-        <video 
-          src={element.content} 
-          controls
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'contain',
-            objectPosition: 'center',
-            borderRadius: 'inherit'
-          }}
-          draggable={false}
-        >
-          Your browser does not support the video tag.
-        </video>
-      )}
-      
-      {element.type === 'audio' && element.content && (
-        <div className="flex flex-col items-center justify-center h-full bg-purple-900/20 border border-purple-500/30 rounded p-2">
-          <svg width="32" height="32" className="text-purple-400 mb-2" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 18V5l12-2v13"/>
-            <circle cx="6" cy="18" r="3"/>
-            <circle cx="18" cy="16" r="3"/>
-          </svg>
-          <div className="text-xs text-purple-300 mb-2 text-center px-2 max-w-full truncate">
-            {element.fileName || 'Audio File'}
-          </div>
-          <audio 
-            src={element.content} 
-            controls
-            className="w-full max-w-48"
-            style={{ height: '32px' }}
-          >
-            Your browser does not support the audio tag.
-          </audio>
-        </div>
-      )}
-      
-      {element.type === 'document' && element.content && (
-        <div className="flex flex-col items-center justify-center h-full bg-green-900/20 border border-green-500/30 rounded p-2">
-          <svg width="32" height="32" className="text-green-400 mb-2" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14,2H6a2,2 0 0,0-2,2V20a2,2 0 0,0,2,2H18a2,2 0 0,0,2-2V6Z"/>
-            <polyline points="14,2 14,8 20,8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10,9 9,9 8,9"/>
-          </svg>
-          <div className="text-xs text-green-300 text-center mb-1 max-w-full truncate">
-            {element.fileName || 'Document'}
-          </div>
-          {element.fileSize && (
-            <div className="text-xs text-green-200/70 text-center">
-              {formatFileSize(element.fileSize)}
-            </div>
-          )}
-          <div className="text-xs text-green-200/50 text-center mt-1">
-            {element.fileType || 'Unknown type'}
-          </div>
-        </div>
       )}
       
       {element.type === 'shape' && (
@@ -1891,6 +1050,21 @@ const ElementRenderer = ({
           height: '100%',
           backgroundColor: element.backgroundColor || '#e5e7eb'
         }} />
+      )}
+      
+      {element.type === 'video' && (
+        <div style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          fontSize: '14px'
+        }}>
+          {element.content || 'Video Placeholder'}
+        </div>
       )}
       
       {/* Resize Handles */}

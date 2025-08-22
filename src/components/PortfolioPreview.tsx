@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Github, ExternalLink, Mail, Linkedin, Globe } from "lucide-react";
+import { Github, ExternalLink, Mail, Linkedin, Globe, FileText, Download, Eye, Image, Video, Music } from "lucide-react";
 import { PortfolioData } from "@/types/portfolio";
 
 interface PortfolioPreviewProps {
@@ -107,6 +107,80 @@ const PortfolioPreview = ({ data, template, fullView = false }: PortfolioPreview
                     ))}
                   </div>
                 </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Documents Section */}
+      {data.documents && data.documents.length > 0 && (
+        <div className="space-y-4">
+          <h2 className={`${fullView ? "text-xl" : "text-lg"} font-semibold`}>Documents</h2>
+          <div className="space-y-2">
+            {data.documents.filter(doc => doc.isPublic).map((doc) => (
+              <Card key={doc.id} className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{doc.name}</span>
+                        <Badge variant={doc.type === 'cv' ? 'default' : 'secondary'}>
+                          {doc.type.toUpperCase()}
+                        </Badge>
+                        {data.resumeId === doc.id && (
+                          <Badge variant="default">Primary</Badge>
+                        )}
+                      </div>
+                      {doc.description && (
+                        <p className="text-sm text-muted-foreground">{doc.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline">
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Media Gallery */}
+      {data.media && data.media.length > 0 && (
+        <div className="space-y-4">
+          <h2 className={`${fullView ? "text-xl" : "text-lg"} font-semibold`}>Media Gallery</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {data.media.slice(0, fullView ? undefined : 6).map((media) => (
+              <Card key={media.id} className="overflow-hidden">
+                <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                  {media.type === 'image' ? (
+                    <img 
+                      src={media.content} 
+                      alt={media.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-500">
+                      {media.type === 'video' && <Video className="h-6 w-6" />}
+                      {media.type === 'audio' && <Music className="h-6 w-6" />}
+                      {media.type === 'document' && <FileText className="h-6 w-6" />}
+                      <span className="text-xs mt-1">{media.type.toUpperCase()}</span>
+                    </div>
+                  )}
+                </div>
+                {fullView && (
+                  <CardContent className="p-2">
+                    <div className="text-sm font-medium truncate">{media.name}</div>
+                  </CardContent>
+                )}
               </Card>
             ))}
           </div>

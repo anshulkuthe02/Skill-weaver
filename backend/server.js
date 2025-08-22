@@ -9,6 +9,9 @@ require('dotenv').config();
 
 // Import routes
 const docsRoutes = require('./routes/docs');
+const supabaseAuthRoutes = require('./routes/supabaseAuth');
+const authSimpleRoutes = require('./routes/authSimple');
+const authAdminRoutes = require('./routes/authAdmin');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -85,6 +88,9 @@ app.use('/uploads', express.static('uploads'));
 
 // Routes - simplified without database dependencies
 app.use('/api/docs', docsRoutes);
+app.use('/api/supabase-auth', supabaseAuthRoutes);
+app.use('/api/auth-simple', authSimpleRoutes);
+app.use('/api/auth-admin', authAdminRoutes);
 
 // Health check endpoint with Supabase connection test
 app.options('/api/health', (req, res) => {

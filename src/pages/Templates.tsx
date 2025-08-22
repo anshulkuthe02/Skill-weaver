@@ -99,24 +99,24 @@ const TemplateActionModal = ({ template, isOpen, onClose }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-900 rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700/50">
+        <div className="flex justify-between items-center p-8 border-b border-gray-700/50 bg-gray-800/80 backdrop-blur-sm">
           <div>
-            <h3 className="text-2xl font-semibold">{template.name}</h3>
-            <p className="text-muted-foreground mt-1">{template.description}</p>
+            <h3 className="text-3xl font-bold text-white mb-2">{template.name}</h3>
+            <p className="text-gray-300 text-lg">{template.description}</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-10 w-10 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white">
+            <X className="h-5 w-5" />
           </Button>
         </div>
         
         <div className="flex h-[70vh]">
           {/* Preview Section */}
-          <div className="flex-1 p-6 border-r bg-gray-50">
-            <div className="h-full bg-white rounded-lg overflow-hidden shadow-inner border">
+          <div className="flex-1 p-8 border-r border-gray-700/50 bg-gradient-to-br from-gray-700 to-gray-800">
+            <div className="h-full bg-gray-900 rounded-2xl overflow-hidden shadow-xl border border-gray-600/50">
               <div className="h-full flex items-center justify-center">
-                <div className="transform scale-50 origin-center w-full h-full">
+                <div className="transform scale-75 origin-center w-full h-full">
                   {template.preview}
                 </div>
               </div>
@@ -124,122 +124,139 @@ const TemplateActionModal = ({ template, isOpen, onClose }: {
           </div>
           
           {/* Action Section */}
-          <div className="w-80 p-6 space-y-6">
+          <div className="w-96 p-8 space-y-8 bg-gray-700/60 backdrop-blur-sm">
             <div>
-              <h4 className="font-semibold mb-3">Template Details</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Category:</span>
-                  <Badge variant="outline">{template.category}</Badge>
+              <h4 className="text-xl font-bold mb-4 text-white">Template Details</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-600/60 rounded-xl border border-gray-600/50">
+                  <span className="text-gray-300 font-medium">Category:</span>
+                  <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0">{template.category}</Badge>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Difficulty:</span>
-                  <span>{template.difficulty || 'Beginner'}</span>
+                <div className="flex justify-between items-center p-3 bg-gray-600/60 rounded-xl border border-gray-600/50">
+                  <span className="text-gray-300 font-medium">Difficulty:</span>
+                  <span className="font-semibold text-white">{template.difficulty || 'Beginner'}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Rating:</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span>{template.rating}</span>
+                <div className="flex justify-between items-center p-3 bg-gray-600/60 rounded-xl border border-gray-600/50">
+                  <span className="text-gray-300 font-medium">Rating:</span>
+                  <div className="flex items-center gap-2 bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-500/30">
+                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                    <span className="font-semibold text-yellow-400">{template.rating}</span>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Downloads:</span>
-                  <span>{template.downloads}</span>
+                <div className="flex justify-between items-center p-3 bg-gray-600/60 rounded-xl border border-gray-600/50">
+                  <span className="text-gray-300 font-medium">Downloads:</span>
+                  <span className="font-semibold text-white">{template.downloads}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Included Features</h4>
-              <div className="space-y-2">
+              <h4 className="text-xl font-bold mb-4 text-white">Included Features</h4>
+              <div className="space-y-3">
                 {template.features?.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span>{feature}</span>
+                  <div key={index} className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
+                    <div className="p-1 bg-green-500 rounded-full">
+                      <Check className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-gray-200 font-medium">{feature}</span>
                   </div>
                 )) || (
                   <>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>Responsive Design</span>
+                    <div className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
+                      <div className="p-1 bg-green-500 rounded-full">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-200 font-medium">Responsive Design</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>Contact Form</span>
+                    <div className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
+                      <div className="p-1 bg-green-500 rounded-full">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-200 font-medium">Contact Form</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>Project Gallery</span>
+                    <div className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
+                      <div className="p-1 bg-green-500 rounded-full">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-200 font-medium">Project Gallery</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>SEO Optimized</span>
+                    <div className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
+                      <div className="p-1 bg-green-500 rounded-full">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-200 font-medium">SEO Optimized</span>
                     </div>
                   </>
                 )}
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="font-semibold">Choose How to Start</h4>
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white">Choose How to Start</h4>
               
               {/* AI Builder Option */}
-              <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Bot className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">AI Builder</span>
-                  <Badge className="bg-blue-100 text-blue-800 text-xs">Recommended</Badge>
+              <div className="p-6 border-2 border-blue-500/30 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500/10 to-transparent w-32 h-32 rounded-full -translate-y-16 translate-x-16"></div>
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-blue-500 rounded-xl">
+                      <Bot className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="font-bold text-blue-200 text-lg">AI Builder</span>
+                    <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0">⚡ Recommended</Badge>
+                  </div>
+                  <p className="text-blue-200 mb-4 leading-relaxed">
+                    Answer a few questions and let AI customize this template with your content automatically.
+                  </p>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-lg font-semibold py-3"
+                    onClick={() => handleUseTemplate('ai')}
+                  >
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Start with AI Builder
+                  </Button>
                 </div>
-                <p className="text-sm text-blue-700 mb-3">
-                  Answer a few questions and let AI customize this template with your content.
-                </p>
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={() => handleUseTemplate('ai')}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Start with AI
-                </Button>
               </div>
 
               {/* Manual Edit Option */}
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Edit3 className="h-4 w-4 text-gray-600" />
-                  <span className="font-medium">Manual Editor</span>
+              <div className="p-6 border-2 border-gray-600/50 rounded-2xl bg-gradient-to-br from-gray-600/20 to-gray-700/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-gray-600 rounded-xl">
+                    <Edit3 className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="font-bold text-gray-200 text-lg">Manual Editor</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Jump straight into the editor and customize everything manually.
+                <p className="text-gray-300 mb-4 leading-relaxed">
+                  Jump straight into the editor and customize everything manually with full control.
                 </p>
                 <Button 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full border-2 border-gray-500 text-gray-200 hover:bg-gray-600 hover:text-white font-semibold py-3"
                   onClick={() => handleUseTemplate('manual')}
                 >
-                  <Code2 className="h-4 w-4 mr-2" />
-                  Manual Edit
+                  <Code2 className="h-5 w-5 mr-2" />
+                  Manual Customization
                 </Button>
               </div>
             </div>
 
-            <div className="pt-4 border-t space-y-3">
+            <div className="pt-6 border-t border-gray-600 space-y-4">
               <Button 
                 variant="outline" 
-                className="w-full"
+                className="w-full border-2 border-gray-500 text-gray-200 hover:bg-gray-600 hover:text-white font-semibold py-3"
                 onClick={handlePreview}
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <ExternalLink className="h-5 w-5 mr-2" />
                 Full Screen Preview
               </Button>
               
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="flex-1">
-                  <Download className="h-4 w-4 mr-1" />
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="ghost" className="flex-1 hover:bg-gray-600 text-gray-300 hover:text-white py-3">
+                  <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>
-                <Button variant="ghost" size="sm" className="flex-1">
-                  <Heart className="h-4 w-4 mr-1" />
+                <Button variant="ghost" className="flex-1 hover:bg-gray-600 text-gray-300 hover:text-white py-3">
+                  <Heart className="h-4 w-4 mr-2" />
                   Save
                 </Button>
               </div>
@@ -733,201 +750,264 @@ const Templates = () => {
   const featuredTemplates = templates.filter(template => template.featured);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Portfolio Templates</h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+      <div className="relative bg-gradient-to-br from-gray-800 via-slate-800 to-gray-900 py-20 overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500/10 rounded-full blur-xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-indigo-500/5 rounded-full blur-2xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center text-white">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+              Portfolio Templates
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto font-light">
               Choose from our collection of {templates.length}+ professionally designed templates. 
               Perfect for developers, designers, and professionals.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span>4.8 average rating</span>
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                <Star className="h-4 w-4 text-yellow-400" />
+                <span className="text-white">4.8 average rating</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Eye className="h-4 w-4 text-blue-500" />
-                <span>100k+ downloads</span>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                <Eye className="h-4 w-4 text-blue-400" />
+                <span className="text-white">100k+ downloads</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
-                <span>Mobile responsive</span>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                <Zap className="h-4 w-4 text-green-400" />
+                <span className="text-white">Mobile responsive</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-16">
         {/* Backend Connection Test */}
-        <div className="mb-8">
-          <BackendConnectionTest />
+        <div className="mb-12">
+          <div className="bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50">
+            <BackendConnectionTest />
+          </div>
+        </div>
+
+        {/* Category Filter */}
+        <div className="mb-16">
+          <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-700/50">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Browse by Category</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`p-4 rounded-xl text-center transition-all duration-300 transform hover:scale-105 ${
+                      selectedCategory === category.id
+                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg border border-indigo-400"
+                        : "bg-gray-700/60 hover:bg-gray-600/80 text-gray-200 border border-gray-600/50 hover:border-gray-500"
+                    }`}
+                  >
+                    <Icon className={`h-6 w-6 mx-auto mb-2 ${
+                      selectedCategory === category.id ? "text-white" : "text-indigo-400"
+                    }`} />
+                    <div className="text-sm font-medium">{category.name}</div>
+                    <div className={`text-xs mt-1 ${
+                      selectedCategory === category.id ? "text-indigo-100" : "text-gray-400"
+                    }`}>
+                      {category.count} templates
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Featured Templates */}
         {selectedCategory === "all" && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-yellow-500" />
-              Featured Templates
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {featuredTemplates.map((template) => (
-                <Card key={template.id} className="border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+          <div className="mb-16">
+            <div className="bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-700/50">
+              <h2 className="text-3xl font-bold mb-8 flex items-center gap-3 text-white">
+                <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
+                Featured Templates
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredTemplates.map((template) => (
+                  <Card key={template.id} className="group border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] bg-gray-700/80 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-600/50">
+                    <CardHeader className="p-0">
+                      <div className="relative">
+                        <div className="h-52 rounded-t-2xl overflow-hidden border-b border-gray-600/50 bg-gradient-to-br from-gray-600 to-gray-700">
+                          <div className="h-full transform group-hover:scale-110 transition-transform duration-500">
+                            {template.preview}
+                          </div>
+                        </div>
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+                          ⭐ Featured
+                        </Badge>
+                        {template.popular && (
+                          <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 shadow-lg">
+                            🔥 Popular
+                          </Badge>
+                        )}
+                        {/* Enhanced hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+                          <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white text-slate-700 border-0 shadow-lg backdrop-blur-sm" onClick={() => handlePreviewTemplate(template.id)}>
+                            <Eye className="h-3 w-3 mr-2" />
+                            Preview
+                          </Button>
+                          <Button size="sm" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg" onClick={() => openTemplateActions(template)}>
+                            <Sparkles className="h-3 w-3 mr-2" />
+                            Use Template
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <CardTitle className="text-lg font-bold text-white">{template.name}</CardTitle>
+                        <div className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30">
+                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                          <span className="text-sm font-semibold text-yellow-400">{template.rating}</span>
+                        </div>
+                      </div>
+                      <CardDescription className="mb-4 text-gray-300 leading-relaxed line-clamp-2">
+                        {template.description}
+                      </CardDescription>
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge variant="secondary" className="capitalize bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+                          {template.category}
+                        </Badge>
+                        <span className="text-sm text-gray-400 font-medium">{template.downloads} downloads</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white" onClick={() => handlePreviewTemplate(template.id)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Preview
+                        </Button>
+                        <Button size="sm" className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700" onClick={() => openTemplateActions(template)}>
+                          <Sparkles className="mr-1 h-3 w-3" />
+                          Use Template
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        {/* All Templates Grid */}
+        <div className="mb-16">
+          <div className="bg-gray-800/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-700/50">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-3xl font-bold text-white">
+                {selectedCategory === "all" ? "All Templates" : `${categories.find(c => c.id === selectedCategory)?.name} Templates`}
+              </h3>
+              <div className="bg-gray-700/80 rounded-full px-4 py-2 border border-gray-600/50">
+                <span className="text-sm font-medium text-gray-300">
+                  {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} found
+                </span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredTemplates.map((template) => (
+                <Card key={template.id} className="group border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.05] bg-gray-700/90 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-600/50">
                   <CardHeader className="p-0">
                     <div className="relative">
-                      <div className="h-48 rounded-t-lg overflow-hidden border-b">
-                        {template.preview}
+                      <div className="h-44 rounded-t-2xl overflow-hidden border-b border-gray-600/50 bg-gradient-to-br from-gray-600 to-gray-700">
+                        <div className="h-full transform group-hover:scale-110 transition-transform duration-500">
+                          {template.preview}
+                        </div>
                       </div>
-                      <Badge className="absolute top-3 right-3 bg-yellow-500 text-white">
-                        Featured
-                      </Badge>
                       {template.popular && (
-                        <Badge className="absolute top-3 left-3 bg-red-500 text-white">
-                          Popular
+                        <Badge className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs border-0 shadow-lg">
+                          🔥 Popular
                         </Badge>
                       )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <span className="text-sm font-medium">{template.rating}</span>
+                      {template.featured && (
+                        <Badge className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs border-0 shadow-lg">
+                          ⭐ Featured
+                        </Badge>
+                      )}
+                      {/* Enhanced hover overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2">
+                        <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white text-slate-700 border-0 shadow-lg backdrop-blur-sm" onClick={() => handlePreviewTemplate(template.id)}>
+                          <Eye className="h-3 w-3 mr-1" />
+                          Preview
+                        </Button>
+                        <Button size="sm" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg" onClick={() => openTemplateActions(template)}>
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Use Template
+                        </Button>
                       </div>
                     </div>
-                    <CardDescription className="mb-3 line-clamp-2">
+                  </CardHeader>
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <CardTitle className="text-base font-bold text-white truncate">{template.name}</CardTitle>
+                      <div className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30">
+                        <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                        <span className="text-xs font-semibold text-yellow-400">{template.rating}</span>
+                      </div>
+                    </div>
+                    <CardDescription className="mb-3 text-sm line-clamp-2 text-gray-300 leading-relaxed">
                       {template.description}
                     </CardDescription>
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge variant="secondary" className="capitalize">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="capitalize text-xs bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
                         {template.category}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">{template.downloads} downloads</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handlePreviewTemplate(template.id)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Preview
-                      </Button>
-                      <Button size="sm" className="flex-1" onClick={() => openTemplateActions(template)}>
-                        <Sparkles className="mr-1 h-3 w-3" />
-                        Use Template
-                      </Button>
+                      <span className="text-xs text-gray-400 font-medium">{template.downloads}</span>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
-        )}
-
-        {/* Category Filter */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">Browse by Category</h3>
-          <div className="flex flex-wrap gap-3">
-            {categories.map((category) => {
-              const IconComponent = category.icon;
-              return (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                  className="flex items-center gap-2"
-                >
-                  <IconComponent className="h-4 w-4" />
-                  {category.name}
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {category.count}
-                  </Badge>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* All Templates Grid */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold">
-              {selectedCategory === "all" ? "All Templates" : `${categories.find(c => c.id === selectedCategory)?.name} Templates`}
-            </h3>
-            <span className="text-sm text-muted-foreground">
-              {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} found
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTemplates.map((template) => (
-              <Card key={template.id} className="border-border/50 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] group">
-                <CardHeader className="p-0">
-                  <div className="relative">
-                    <div className="h-40 rounded-t-lg overflow-hidden border-b">
-                      {template.preview}
-                    </div>
-                    {template.popular && (
-                      <Badge className="absolute top-2 right-2 bg-red-500 text-white text-xs">
-                        Popular
-                      </Badge>
-                    )}
-                    {template.featured && (
-                      <Badge className="absolute top-2 left-2 bg-yellow-500 text-white text-xs">
-                        Featured
-                      </Badge>
-                    )}
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => handlePreviewTemplate(template.id)}>
-                        <Eye className="h-3 w-3 mr-1" />
-                        Preview
-                      </Button>
-                      <Button size="sm" onClick={() => openTemplateActions(template)}>
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        Use Template
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <CardTitle className="text-base truncate">{template.name}</CardTitle>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                      <span className="text-xs">{template.rating}</span>
-                    </div>
-                  </div>
-                  <CardDescription className="mb-3 text-sm line-clamp-2">
-                    {template.description}
-                  </CardDescription>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="capitalize text-xs">
-                      {template.category}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{template.downloads}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
 
         {/* Call to Action */}
-        <div className="text-center py-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl">
-          <h3 className="text-2xl font-bold mb-4">Ready to Build Your Portfolio?</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Choose a template and customize it to match your unique style and personality.
-          </p>
-          <Button size="lg" asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-            <Link to="/builder">
-              <Sparkles className="mr-2 h-5 w-5" />
-              Start Building Now
-            </Link>
-          </Button>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800 via-slate-800 to-gray-900 text-white border border-gray-700/50">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute top-0 left-0 w-full h-full">
+            <div className="absolute top-5 left-5 w-24 h-24 bg-blue-500/10 rounded-full blur-xl"></div>
+            <div className="absolute bottom-5 right-5 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-indigo-500/5 rounded-full blur-2xl"></div>
+          </div>
+          
+          <div className="relative z-10 text-center py-16 px-8">
+            <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+              Ready to Build Your Portfolio?
+            </h3>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto font-light">
+              Choose a template and customize it to match your unique style and personality. 
+              Create something extraordinary in minutes.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" asChild className="bg-white text-gray-800 hover:bg-gray-100 hover:text-gray-900 border-0 shadow-xl font-semibold px-8 py-4">
+                <Link to="/builder">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Start Building Now
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white backdrop-blur-sm px-8 py-4">
+                <Eye className="mr-2 h-5 w-5" />
+                Browse All Templates
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 

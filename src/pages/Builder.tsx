@@ -23,7 +23,10 @@ const Builder = () => {
       github: "",
       linkedin: "",
       website: ""
-    }
+    },
+    documents: [],
+    media: [],
+    resumeId: undefined
   });
   const [customCSS, setCustomCSS] = useState("");
   const navigate = useNavigate();
