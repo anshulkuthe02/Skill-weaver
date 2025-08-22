@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles } from "lucide-react";
 import PortfolioForm from "@/components/PortfolioForm";
 import PortfolioPreview from "@/components/PortfolioPreview";
 import TemplateSelection from "@/components/TemplateSelection";
+import ManualDesign from "@/components/ManualDesign";
+// ManualDesignPage will be loaded via route
 import { PortfolioData } from "@/types/portfolio";
 
 const Builder = () => {
@@ -22,6 +25,8 @@ const Builder = () => {
       website: ""
     }
   });
+  const [customCSS, setCustomCSS] = useState("");
+  const navigate = useNavigate();
 
   return (
     <div className="p-6">
@@ -36,6 +41,7 @@ const Builder = () => {
           <TabsTrigger value="content">Add Content</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
+        {/* Manual design section is now part of the template tab only */}
 
         <TabsContent value="template" className="space-y-6">
           <Card className="border-border/50 shadow-elegant">
@@ -45,7 +51,7 @@ const Builder = () => {
                 Choose Template
               </CardTitle>
               <CardDescription>
-                Select a template that matches your style and professional brand
+                Select a template that matches your style and professional brand. You can also manually design your template below.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -54,6 +60,18 @@ const Builder = () => {
                 onTemplateSelect={setSelectedTemplate}
               />
             </CardContent>
+              <div className="mt-8">
+                <Card className="border-dashed cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => navigate('/manual-design')}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      🎨 Manual Design
+                    </CardTitle>
+                    <CardDescription>
+                      Click to manually style your portfolio with theme, color, gradient, footer, and more
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
           </Card>
         </TabsContent>
 
