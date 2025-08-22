@@ -1,73 +1,155 @@
-# Welcome to your Lovable project
+# SkillWeave - Portfolio Builder
 
-## Project info
+A modern full-stack portfolio builder with React TypeScript frontend and Node.js backend, integrated with Supabase for authentication and data management.
 
-**URL**: https://lovable.dev/projects/01230841-0965-4711-8cd0-d683dcc217f7
+## 🚀 Quick Setup After Cloning
 
-## How can I edit this code?
+### Prerequisites
+- **Node.js 18+** and npm - [Install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Supabase Account** - [Create free account](https://supabase.com)
+- **Git** installed on your system
 
-There are several ways of editing your application.
+### Step 1: Clone and Navigate
+```bash
+git clone https://github.com/anshulkuthe02/skill-weave-site.git
+cd skill-weave-site
+```
 
-**Use Lovable**
+### Step 2: Frontend Setup
+```bash
+# Install frontend dependencies
+npm install
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/01230841-0965-4711-8cd0-d683dcc217f7) and start prompting.
+# Create environment file from template
+cp .env.example .env
 
-Changes made via Lovable will be committed automatically to this repo.
+# Edit .env with your Supabase credentials:
+# VITE_SUPABASE_URL=your_supabase_project_url
+# VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-**Use your preferred IDE**
+### Step 3: Backend Setup
+```bash
+# Navigate to backend directory
+cd backend
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Install backend dependencies
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Create backend environment file
+cp .env.example .env
 
-Follow these steps:
+# Edit backend/.env with your credentials:
+# SUPABASE_URL=your_supabase_project_url
+# SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# PORT=5000
+# NODE_ENV=development
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Step 4: Database Setup
+1. **Create Supabase Project**: Go to [Supabase Dashboard](https://app.supabase.com)
+2. **Create New Project**: Click "New Project" and follow setup
+3. **Get Credentials**: 
+   - Project URL: Settings → API → Project URL
+   - Anon Key: Settings → API → Project API keys → anon/public
+   - Service Role Key: Settings → API → Project API keys → service_role
+4. **Run Database Schema**: 
+   - Go to SQL Editor in Supabase Dashboard
+   - Copy contents of `schema.sql` from root directory
+   - Execute the SQL to create all tables and policies
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Step 5: Start Development Servers
 
-# Step 3: Install the necessary dependencies.
-npm i
+**Terminal 1 - Backend Server:**
+```bash
+cd backend
+npm start
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+**Terminal 2 - Frontend Development Server:**
+```bash
+# From root directory
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Step 6: Access Application
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
+- **API Health Check**: http://localhost:5000/api/health
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔧 Environment Configuration
 
-**Use GitHub Codespaces**
+### Frontend Environment (.env)
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Backend Environment (backend/.env)
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+PORT=5000
+NODE_ENV=development
+```
 
-## What technologies are used for this project?
+## 🛠️ Technology Stack
 
-This project is built with:
+### Frontend
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **Vite** for build tooling
+- **Supabase Client** for authentication and data
+- **React Router** for navigation
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Backend
+- **Node.js** with Express.js
+- **Supabase** for database and authentication
+- **JWT** token-based authentication
+- **CORS** enabled for cross-origin requests
 
-## How can I deploy this project?
+### Database
+- **Supabase PostgreSQL** with Row Level Security
+- **11-table schema** for comprehensive data management
+- **Real-time subscriptions** for live updates
 
-Simply open [Lovable](https://lovable.dev/projects/01230841-0965-4711-8cd0-d683dcc217f7) and click on Share -> Publish.
+## 📝 Key Features
 
-## Can I connect a custom domain to my Lovable project?
+- ✅ **No localStorage dependencies** - Complete Supabase integration
+- ✅ **Secure authentication** - JWT-based with Supabase Auth
+- ✅ **Portfolio management** - Create, edit, and publish portfolios
+- ✅ **Template system** - Pre-built templates with customization
+- ✅ **Real-time updates** - Live preview and auto-save
+- ✅ **Mobile responsive** - Works on all device sizes
 
-Yes, you can!
+## 🚨 Troubleshooting
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Common Issues:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+**1. Supabase Connection Errors:**
+- Verify your environment variables are correct
+- Check that your Supabase project is active
+- Ensure RLS policies are set up (run schema.sql)
+
+**2. CORS Errors:**
+- Backend server should be running on port 5000
+- Frontend should proxy API calls correctly
+
+**3. Authentication Issues:**
+- Verify anon key and service role key are correct
+- Check that auth is enabled in Supabase dashboard
+
+### Get Help:
+- Check [QUICK_START.md](./QUICK_START.md) for simplified setup
+- Review [README-COMPLETE.md](./README-COMPLETE.md) for detailed documentation
+- Create an issue in the GitHub repository
+
+## 🔗 Useful Links
+
+- **Repository**: https://github.com/anshulkuthe02/skill-weave-site
+- **Supabase Dashboard**: https://app.supabase.com
+- **Documentation**: See README-COMPLETE.md for full details
+
+---
+
+**Ready to build amazing portfolios! 🎨**
