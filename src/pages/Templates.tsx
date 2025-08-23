@@ -124,10 +124,10 @@ const TemplateActionModal = ({ template, isOpen, onClose }: {
           </div>
           
           {/* Action Section */}
-          <div className="w-96 p-8 space-y-8 bg-gray-700/60 backdrop-blur-sm">
+          <div className="w-96 p-8 space-y-6 bg-gray-700/60 backdrop-blur-sm overflow-y-auto">
             <div>
-              <h4 className="text-xl font-bold mb-4 text-white">Template Details</h4>
-              <div className="space-y-3">
+              <h4 className="text-lg font-bold mb-3 text-white">Template Details</h4>
+              <div className="space-y-2">
                 <div className="flex justify-between items-center p-3 bg-gray-600/60 rounded-xl border border-gray-600/50">
                   <span className="text-gray-300 font-medium">Category:</span>
                   <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0">{template.category}</Badge>
@@ -151,8 +151,8 @@ const TemplateActionModal = ({ template, isOpen, onClose }: {
             </div>
 
             <div>
-              <h4 className="text-xl font-bold mb-4 text-white">Included Features</h4>
-              <div className="space-y-3">
+              <h4 className="text-lg font-bold mb-3 text-white">Included Features</h4>
+              <div className="space-y-2">
                 {template.features?.map((feature, index) => (
                   <div key={index} className="flex items-center gap-3 p-3 bg-green-500/20 rounded-xl border border-green-500/30">
                     <div className="p-1 bg-green-500 rounded-full">
