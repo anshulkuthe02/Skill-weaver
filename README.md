@@ -1,4 +1,4 @@
-# SkillWeave - Portfolio Builder
+# SkillWeaver - Portfolio Builder
 
 A modern full-stack portfolio builder with React TypeScript frontend and Node.js backend, integrated with Supabase for authentication and data management.
 
