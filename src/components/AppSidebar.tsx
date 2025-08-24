@@ -35,7 +35,7 @@ export function AppSidebar() {
     isActive ? "bg-accent/20 text-accent font-medium" : "hover:bg-muted/50";
 
   return (
-    <Sidebar collapsible="icon">
+  <Sidebar collapsible="icon" className="h-full w-full md:w-64">
       <SidebarContent>
         {/* Logo */}
         <div className="p-4 border-b border-border/50">
